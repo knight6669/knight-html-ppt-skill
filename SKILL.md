@@ -43,9 +43,10 @@ New decks should ship with interactive editing enabled by default:
   selected text while text editing; `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z`
   redo, `Ctrl+S` save, and `Esc` prompts to save, discard, or continue editing
   when dirty.
-- While edit mode is active, deck navigation keys and mouse wheel must not turn
-  pages outside text editing. Inside `contenteditable`, Arrow keys and Backspace
-  must remain normal text-editing operations.
+- While edit mode is active, Arrow/Page/Space keys and mouse wheel should still
+  turn pages when the user is not typing in text or using editor UI. Inside
+  `contenteditable`, Arrow keys and Backspace must remain normal text-editing
+  operations and must not trigger deck navigation.
 - Save uses the browser File System Access / save-as flow when available and
   falls back to downloading the modified HTML. It must not depend on a local
   save server.
@@ -434,10 +435,10 @@ Before handing off a finished HTML deck:
   drag/resize work, double-click edits text, Ctrl+Z/Ctrl+Y undo/redo, Esc prompts
   to save dirty changes, Ctrl+S uses browser save/另存为 or download fallback,
   and saved HTML does not contain editor UI or transient selection attributes.
-- Verify edit-mode input isolation: after pressing `V`, Arrow/Page/Space/
-  Backspace and mouse wheel must not change `location.hash` unless the editor
-  has exited. Then double-click text and confirm Arrow keys and Backspace move
-  or delete text without triggering deck navigation.
+- Verify edit-mode navigation isolation: after pressing `V`, with focus on the
+  slide canvas rather than text/editor UI, ArrowRight and mouse wheel must still
+  advance `location.hash`. Then double-click text and confirm Arrow keys and
+  Backspace move or delete text without triggering deck navigation.
 - After adding FX/SVG graphics, inspect at least the enhanced slides for
   background text/noise over headings, progress lines through labels, SVG nodes
   covering card text, and accidental single-character Chinese wraps.

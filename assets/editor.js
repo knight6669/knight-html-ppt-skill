@@ -303,8 +303,6 @@
     }
 
     if (isDeckNavigationKey(key)) {
-      event.preventDefault();
-      event.stopPropagation();
       return;
     }
     event.stopPropagation();

@@ -1306,8 +1306,12 @@
     const WHEEL_THRESHOLD = 90;
     const WHEEL_COOLDOWN = 360;
 
-    function isDeckEditorActive() {
-      return !!(document.body && document.body.classList.contains('knight-editor-active'));
+    function shouldBlockDeckNavigationForEditor(e) {
+      if (!(document.body && document.body.classList.contains('knight-editor-active'))) return false;
+      const target = e && e.target && e.target.closest
+        ? e.target.closest('input, textarea, select, [contenteditable="true"], .knight-editor-ui')
+        : null;
+      return !!target;
     }
 
     function shouldIgnoreWheel(e) {
@@ -1319,7 +1323,7 @@
     }
 
     document.addEventListener('wheel', function(e) {
-      if (isDeckEditorActive()) {
+      if (shouldBlockDeckNavigationForEditor(e)) {
         e.preventDefault();
         return;
       }
@@ -2258,7 +2262,7 @@
     }
 
     document.addEventListener('keydown', function (e) {
-      if (isDeckEditorActive()) return;
+      if (shouldBlockDeckNavigationForEditor(e)) return;
       if (e.metaKey||e.ctrlKey||e.altKey) return;
       switch (e.key) {
         case 'ArrowRight': case ' ': case 'PageDown': case 'Enter': go(idx+1); e.preventDefault(); break;
