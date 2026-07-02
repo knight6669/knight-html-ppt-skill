@@ -18,8 +18,6 @@
 - **常用样式工具条**：支持保存、撤销、重做、加粗/取消加粗、字号、常用颜色、自定义颜色入口和左/中/右对齐。
 - **键盘操作**：`Ctrl+B` 加粗/取消加粗，`Ctrl+Z` 撤销，`Ctrl+Y` / `Ctrl+Shift+Z` 重做，`Ctrl+S` 保存，`Esc` 退出并提示保存。
 - **保存方式**：优先使用浏览器的文件保存/另存为能力；浏览器不支持或权限不可用时，自动下载修改后的 HTML。
-- **生成要求**：deck 只要正常引用新版 `assets/runtime.js`，runtime 会在普通放映视图自动加载 `assets/editor.js` 和 `assets/editor.css`。preview、presenter、print 场景不会加载编辑器。
-- **锁定元素**：模板作者可给装饰层、页脚、页码或运行时元素加 `data-edit-lock="true"`，避免被误选中。
 
 ## 产品定位
 
