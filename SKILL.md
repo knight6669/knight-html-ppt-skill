@@ -9,6 +9,25 @@ Author professional HTML presentations as static files. One theme file = one
 look. One layout file = one page type. One animation class = one entry effect.
 All pages share a token-based design system in `assets/base.css`.
 
+## Latest Update: Built-in Browser Editing
+
+New decks should ship with interactive editing enabled by default:
+
+- Include the current `assets/runtime.js`; it auto-loads `assets/editor.js` and
+  `assets/editor.css` in the normal audience view.
+- Press `V` to enter or exit edit mode. Click common slide elements to select
+  them, drag to move, drag handles to resize, and double-click text to edit.
+- The toolbar supports save, undo, redo, bold, font size, common color swatches,
+  custom color, and left/center/right alignment.
+- Keyboard support: `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z` redo, `Ctrl+S`
+  save, and `Esc` prompts to save, discard, or continue editing when dirty.
+- Save uses the browser File System Access / save-as flow when available and
+  falls back to downloading the modified HTML. It must not depend on a local
+  save server.
+- Do not load the editor in preview, presenter, or print contexts. Use
+  `data-edit-lock="true"` for decorative or runtime-owned elements that should
+  never be selected.
+
 ## Install
 
 ```bash
@@ -191,9 +210,9 @@ Only after those are clear, scaffold the deck and start writing.
 - **Interactive editing support.** Normal generated decks should allow V to enter
   edit mode. The editor supports selecting common text/cards/images, dragging,
   resizing, text editing, font size, color, bold, alignment, undo/redo, local
-  draft restore, and saving HTML. Save button and Ctrl+S reuse the remembered
-  file handle to overwrite after browser permission is granted; if no handle is
-  available, the browser asks for a file or downloads a copy.
+  draft restore, and saving HTML. Save button and Ctrl+S use the browser save-as
+  / File System Access flow when available; if permission is unavailable, the
+  browser asks for a file or downloads a copy.
   Use `data-edit-lock="true"` on decorative or runtime-owned elements that must
   not be selected.
 - **Use O as a full-screen thumbnail wall.** `O` should open a whole-page

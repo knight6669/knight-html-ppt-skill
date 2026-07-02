@@ -9,6 +9,18 @@
 
 ![HTML PPT Studio preview](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/hero.gif)
 
+## 最新更新：自带在线编辑模式
+
+新生成的 HTML PPT 默认自带浏览器编辑能力，无需构建、无需安装额外服务。
+
+- **按 `V` 进入编辑模式**：点击选择页面元素，拖拽移动，拖动控制点缩放。
+- **双击文字直接修改**：支持标题、正文、列表、卡片等常见文本块，粘贴会自动转纯文本。
+- **常用样式工具条**：支持保存、撤销、重做、加粗、字号、常用颜色、自定义颜色入口和左/中/右对齐。
+- **键盘操作**：`Ctrl+Z` 撤销，`Ctrl+Y` / `Ctrl+Shift+Z` 重做，`Ctrl+S` 保存，`Esc` 退出并提示保存。
+- **保存方式**：优先使用浏览器的文件保存/另存为能力；浏览器不支持或权限不可用时，自动下载修改后的 HTML。
+- **生成要求**：deck 只要正常引用新版 `assets/runtime.js`，runtime 会在普通放映视图自动加载 `assets/editor.js` 和 `assets/editor.css`。preview、presenter、print 场景不会加载编辑器。
+- **锁定元素**：模板作者可给装饰层、页脚、页码或运行时元素加 `data-edit-lock="true"`，避免被误选中。
+
 ## 产品定位
 
 `knight-html-ppt-skill` 是一个“HTML 演示稿生产基座”：
