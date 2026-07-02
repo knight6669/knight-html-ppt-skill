@@ -9,6 +9,26 @@ Author professional HTML presentations as static files. One theme file = one
 look. One layout file = one page type. One animation class = one entry effect.
 All pages share a token-based design system in `assets/base.css`.
 
+## 2026-07-03 Update: FX, Graphics, and QA Hardening
+
+New polished decks should feel more visual by default, not just text cards:
+
+- For a 6-10 page business/tech deck, add content-aware graphic layers across
+  the deck: cover atmosphere, trend/radar map, workflow loop, data/ops visual,
+  risk/governance map, and roadmap/progress visual.
+- Use Canvas FX on high-emphasis pages when it clarifies the mood or system
+  metaphor. Pair `data-fx` with semantic SVG layers such as orbit maps, agent
+  loops, modality meshes, infra backplanes, risk compasses, or timeline rails.
+- Mark decorative FX/SVG with `data-edit-lock="true"` and keep them
+  non-interactive (`pointer-events:none`) so V-key editing selects slide content,
+  not background art.
+- After adding graphic layers, inspect screenshots for lines or nodes crossing
+  headings, cards, or roadmap titles. Fix orphan Chinese one-character wraps
+  with intentional `<br>` or a layout adjustment.
+- Browser QA must scope real slides as `body > .deck > section.slide`; runtime
+  overview and navigator features create slide clones, so global `section.slide`
+  counts can overcount.
+
 ## Latest Update: Built-in Browser Editing
 
 New decks should ship with interactive editing enabled by default:
@@ -23,6 +43,9 @@ New decks should ship with interactive editing enabled by default:
   selected text while text editing; `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z`
   redo, `Ctrl+S` save, and `Esc` prompts to save, discard, or continue editing
   when dirty.
+- While edit mode is active, deck navigation keys and mouse wheel must not turn
+  pages outside text editing. Inside `contenteditable`, Arrow keys and Backspace
+  must remain normal text-editing operations.
 - Save uses the browser File System Access / save-as flow when available and
   falls back to downloading the modified HTML. It must not depend on a local
   save server.
@@ -354,6 +377,12 @@ Only after those are clear, scaffold the deck and start writing.
   `orbit-ring`, `constellation`, etc.) as background atmosphere with controlled
   opacity, masks, and no pointer events. FX should add energy without reducing
   legibility or making operational/report pages feel decorative.
+- **Prefer semantic graphic expression over plain card grids.** For technology,
+  strategy, or business-trend decks, avoid leaving every page as only cards and
+  bullets. Add visible but restrained information graphics: trend orbit/radar
+  maps, agent loops, modality matrices, architecture backplanes, governance
+  quadrants, data dashboards, or roadmap rails. Make the graphic explain the
+  message, not merely decorate the canvas.
 - **Add content-aware SVG diagrams when they clarify the message.** Use SVG
   motion for concepts such as task flow, risk boundaries, tool selection,
   knowledge assets, loops, and timelines. The graphic should have presence and
@@ -382,6 +411,10 @@ Before handing off a finished HTML deck:
 - Render all slides to PNG at the target ratio and inspect a contact sheet or
   representative screenshots for overflow, overlap, excessive bottom whitespace,
   and weak vertical alignment.
+- When using browser automation, count only `body > .deck > section.slide`.
+  Runtime-generated overview/navigator thumbnails may clone `.slide` elements
+  and make `document.querySelectorAll('section.slide')` larger than the real
+  page count.
 - Verify every slide has a visible footer note and page number. Search for
   `.deck-footer` / `.slide-number` count matching the number of `.slide`
   sections, and spot-check rendered PNGs for the first, middle, and last slides.
@@ -401,6 +434,13 @@ Before handing off a finished HTML deck:
   drag/resize work, double-click edits text, Ctrl+Z/Ctrl+Y undo/redo, Esc prompts
   to save dirty changes, Ctrl+S uses browser save/另存为 or download fallback,
   and saved HTML does not contain editor UI or transient selection attributes.
+- Verify edit-mode input isolation: after pressing `V`, Arrow/Page/Space/
+  Backspace and mouse wheel must not change `location.hash` unless the editor
+  has exited. Then double-click text and confirm Arrow keys and Backspace move
+  or delete text without triggering deck navigation.
+- After adding FX/SVG graphics, inspect at least the enhanced slides for
+  background text/noise over headings, progress lines through labels, SVG nodes
+  covering card text, and accidental single-character Chinese wraps.
 - Verify main heading fit in a real browser at the target deck viewport,
   typically `1600x1000`. For each `.h2` / main title, check for accidental
   wrapping and horizontal overflow. Medium-length headings should not wrap just
@@ -422,6 +462,8 @@ Before handing off a finished HTML deck:
   system Node cannot import Playwright, try the bundled workspace Node modules
   from `load_workspace_dependencies` before declaring browser automation
   unavailable.
+- Remove temporary render/debug screenshots before delivery; keep only the
+  intended final PNG set in the output folder.
 
 ## Writing guide
 

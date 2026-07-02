@@ -1306,6 +1306,10 @@
     const WHEEL_THRESHOLD = 90;
     const WHEEL_COOLDOWN = 360;
 
+    function isDeckEditorActive() {
+      return !!(document.body && document.body.classList.contains('knight-editor-active'));
+    }
+
     function shouldIgnoreWheel(e) {
       if (e.ctrlKey || e.metaKey || e.altKey) return true;
       const target = e.target && e.target.closest
@@ -1315,6 +1319,10 @@
     }
 
     document.addEventListener('wheel', function(e) {
+      if (isDeckEditorActive()) {
+        e.preventDefault();
+        return;
+      }
       if (shouldIgnoreWheel(e)) return;
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
       const now = Date.now();
@@ -2250,6 +2258,7 @@
     }
 
     document.addEventListener('keydown', function (e) {
+      if (isDeckEditorActive()) return;
       if (e.metaKey||e.ctrlKey||e.altKey) return;
       switch (e.key) {
         case 'ArrowRight': case ' ': case 'PageDown': case 'Enter': go(idx+1); e.preventDefault(); break;
