@@ -9,7 +9,7 @@
 
 ![HTML PPT Studio preview](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/hero.gif)
 
-## 最新更新：自带在线编辑模式
+## 2026-07-02 最新更新：自带在线编辑模式
 
 新生成的 HTML PPT 默认自带浏览器编辑能力，无需构建、无需安装额外服务。
 
