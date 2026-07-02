@@ -18,6 +18,8 @@
 (function () {
   'use strict';
 
+  const runtimeScript = document.currentScript;
+
   const ANIMS = ['fade-up','fade-down','fade-left','fade-right','rise-in','drop-in',
     'zoom-pop','blur-in','glitch-in','typewriter','neon-glow','shimmer-sweep',
     'gradient-flow','stagger-list','counter-up','path-draw','parallax-tilt',
@@ -25,6 +27,33 @@
     'marquee-scroll','kenburns','confetti-burst','spotlight','morph-shape','ripple-reveal'];
 
   function ready(fn){ if(document.readyState!='loading')fn(); else document.addEventListener('DOMContentLoaded',fn);}
+
+  function loadDeckEditorAssets() {
+    if (window.KnightDeckEditor || window.__knightDeckEditorLoading) return;
+    if (getPreviewIdx() >= 0 || getQueryParam('presenter') === '1') return;
+    if (window.matchMedia && window.matchMedia('print').matches) return;
+
+    const src = runtimeScript && runtimeScript.getAttribute('src');
+    const base = src && src.indexOf('/') >= 0 ? src.slice(0, src.lastIndexOf('/') + 1) : 'assets/';
+    window.__knightDeckEditorLoading = true;
+
+    if (!document.querySelector('link[data-knight-editor-asset="css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = base + 'editor.css';
+      link.setAttribute('data-knight-editor-asset', 'css');
+      document.head.appendChild(link);
+    }
+
+    if (!document.querySelector('script[data-knight-editor-asset="js"]')) {
+      const script = document.createElement('script');
+      script.src = base + 'editor.js';
+      script.defer = true;
+      script.setAttribute('data-knight-editor-asset', 'js');
+      script.addEventListener('error', () => { window.__knightDeckEditorLoading = false; });
+      document.head.appendChild(script);
+    }
+  }
 
   /* ========== Parse URL for preview-only mode ==========
    * When loaded as iframe.src = "index.html?preview=3", runtime enters a
@@ -2246,5 +2275,6 @@
     window.addEventListener('hashchange', fromHash);
     fromHash();
     go(idx);
+    loadDeckEditorAssets();
   });
 })();

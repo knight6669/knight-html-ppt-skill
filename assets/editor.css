@@ -1,0 +1,478 @@
+/* knight-html-ppt-skill :: editor.css */
+body.knight-editor-active {
+  cursor: default;
+  user-select: none;
+}
+
+body.knight-editor-active .slide.is-active {
+  pointer-events: auto;
+}
+
+body.knight-editor-active [contenteditable="true"] {
+  user-select: text;
+  cursor: text;
+  outline: none;
+}
+
+.knight-editor-ui,
+.knight-editor-ui * {
+  box-sizing: border-box;
+}
+
+.knight-editor-toolbar {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(1180px, calc(100vw - 32px));
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 78%, var(--accent, #3b6cff) 22%);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--surface, #fff) 94%, transparent),
+      color-mix(in srgb, var(--surface-2, #f4f5f7) 92%, transparent));
+  color: var(--text-1, #111216);
+  box-shadow: 0 18px 52px rgba(15, 23, 42, .18), 0 2px 10px rgba(15, 23, 42, .1);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%) translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  transition: opacity .18s ease, transform .18s cubic-bezier(.2,.85,.2,1);
+}
+
+body.knight-editor-active .knight-editor-toolbar {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.knight-editor-toolbar::before {
+  content: "编辑";
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 30px;
+  min-width: max-content;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent, #3b6cff) 13%, transparent);
+  color: var(--accent, #3b6cff);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.knight-editor-separator {
+  width: 1px;
+  height: 26px;
+  margin: 0 2px;
+  background: var(--border, rgba(0,0,0,.1));
+}
+
+.knight-editor-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-1, #111216);
+  font: 700 13px/1 var(--font-sans, system-ui, sans-serif);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .14s ease, border-color .14s ease, color .14s ease, transform .14s ease;
+}
+
+.knight-editor-button:hover,
+.knight-editor-button:focus-visible {
+  border-color: color-mix(in srgb, var(--accent, #3b6cff) 34%, var(--border, rgba(0,0,0,.1)));
+  background: color-mix(in srgb, var(--accent, #3b6cff) 10%, transparent);
+  outline: none;
+}
+
+.knight-editor-button:active {
+  transform: translateY(1px);
+}
+
+.knight-editor-button[disabled] {
+  cursor: not-allowed;
+  color: var(--text-3, #8a8f9e);
+  opacity: .46;
+}
+
+.knight-editor-button.is-active {
+  border-color: color-mix(in srgb, var(--accent, #3b6cff) 52%, var(--border, rgba(0,0,0,.1)));
+  background: color-mix(in srgb, var(--accent, #3b6cff) 14%, transparent);
+  color: var(--accent, #3b6cff);
+}
+
+.knight-editor-primary {
+  min-width: 62px;
+  background: var(--text-1, #111216);
+  color: var(--text-inverse, #fff);
+}
+
+.knight-editor-primary:hover,
+.knight-editor-primary:focus-visible {
+  background: var(--accent, #3b6cff);
+  color: #fff;
+}
+
+.knight-editor-field {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border, rgba(0,0,0,.1));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface, #fff) 88%, transparent);
+  color: var(--text-2, #55596a);
+  font: 650 12px/1 var(--font-sans, system-ui, sans-serif);
+  white-space: nowrap;
+}
+
+.knight-editor-font-size {
+  width: 62px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  color: var(--text-1, #111216);
+  font: 700 13px/1 var(--font-sans, system-ui, sans-serif);
+  outline: none;
+}
+
+.knight-editor-color-group {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.knight-editor-color-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--border, rgba(0,0,0,.1));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface, #fff) 88%, transparent);
+  color: var(--text-2, #55596a);
+  font: 750 12px/1 var(--font-sans, system-ui, sans-serif);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease, box-shadow .14s ease;
+}
+
+.knight-editor-color-button:hover,
+.knight-editor-color-button:focus-visible,
+.knight-editor-color-button[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--accent, #3b6cff) 36%, var(--border, rgba(0,0,0,.1)));
+  background: color-mix(in srgb, var(--accent, #3b6cff) 8%, var(--surface, #fff));
+  outline: none;
+}
+
+.knight-editor-color-button[disabled] {
+  cursor: not-allowed;
+  opacity: .48;
+}
+
+.knight-editor-current-color {
+  width: 22px;
+  height: 20px;
+  border: 1px solid color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 70%, transparent);
+  border-radius: 5px;
+  background:
+    linear-gradient(45deg, rgba(0,0,0,.12) 25%, transparent 25% 75%, rgba(0,0,0,.12) 75%) 0 0 / 8px 8px,
+    var(--current-color, #111216);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.32);
+}
+
+.knight-editor-color-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 10004;
+  width: 238px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 72%, var(--accent, #3b6cff) 28%);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--surface, #fff) 96%, transparent),
+      color-mix(in srgb, var(--surface-2, #f4f5f7) 94%, transparent));
+  box-shadow: 0 20px 54px rgba(15, 23, 42, .2), 0 3px 12px rgba(15, 23, 42, .1);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px) scale(.98);
+  transform-origin: 24px 0;
+  transition: opacity .14s ease, transform .14s cubic-bezier(.2,.85,.2,1);
+}
+
+.knight-editor-color-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.knight-editor-color-title {
+  margin-bottom: 9px;
+  color: var(--text-2, #55596a);
+  font: 750 12px/1 var(--font-sans, system-ui, sans-serif);
+}
+
+.knight-editor-color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.knight-editor-color-swatch {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 65%, transparent);
+  border-radius: 999px;
+  background:
+    linear-gradient(45deg, rgba(0,0,0,.1) 25%, transparent 25% 75%, rgba(0,0,0,.1) 75%) 0 0 / 8px 8px,
+    var(--swatch);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.34), 0 2px 8px rgba(15,23,42,.1);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.knight-editor-color-swatch:hover,
+.knight-editor-color-swatch:focus-visible {
+  border-color: color-mix(in srgb, var(--accent, #3b6cff) 55%, var(--border, rgba(0,0,0,.1)));
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.4), 0 5px 14px rgba(15,23,42,.16);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.knight-editor-color-swatch.is-active::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--accent, #3b6cff);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.knight-editor-color-swatch span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.knight-editor-color-custom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, rgba(0,0,0,.1));
+  color: var(--text-2, #55596a);
+  font: 750 12px/1 var(--font-sans, system-ui, sans-serif);
+  white-space: nowrap;
+}
+
+.knight-editor-color {
+  width: 34px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--border, rgba(0,0,0,.1));
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--surface, #fff);
+  cursor: pointer;
+}
+
+.knight-editor-status {
+  flex: 0 0 auto;
+  min-width: max-content;
+  max-width: none;
+  color: var(--text-2, #55596a);
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.knight-editor-status.is-dirty {
+  color: var(--warn, #f5a524);
+}
+
+.knight-editor-status.is-saved {
+  color: var(--good, #1aaf6c);
+}
+
+.knight-editor-selection {
+  position: fixed;
+  z-index: 9998;
+  display: none;
+  border: 1.5px solid var(--accent, #3b6cff);
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent, #3b6cff) 28%, transparent),
+    0 0 0 9999px rgba(15, 23, 42, .035);
+}
+
+body.knight-editor-active .knight-editor-selection.is-visible {
+  display: block;
+}
+
+.knight-editor-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: var(--accent, #3b6cff);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .22);
+  pointer-events: auto;
+}
+
+.knight-editor-handle[data-handle*="n"] { top: -6px; }
+.knight-editor-handle[data-handle*="s"] { bottom: -6px; }
+.knight-editor-handle[data-handle*="w"] { left: -6px; }
+.knight-editor-handle[data-handle*="e"] { right: -6px; }
+.knight-editor-handle[data-handle="n"],
+.knight-editor-handle[data-handle="s"] { left: calc(50% - 5px); }
+.knight-editor-handle[data-handle="e"],
+.knight-editor-handle[data-handle="w"] { top: calc(50% - 5px); }
+.knight-editor-handle[data-handle="nw"],
+.knight-editor-handle[data-handle="se"] { cursor: nwse-resize; }
+.knight-editor-handle[data-handle="ne"],
+.knight-editor-handle[data-handle="sw"] { cursor: nesw-resize; }
+.knight-editor-handle[data-handle="n"],
+.knight-editor-handle[data-handle="s"] { cursor: ns-resize; }
+.knight-editor-handle[data-handle="e"],
+.knight-editor-handle[data-handle="w"] { cursor: ew-resize; }
+
+[data-knight-edit-selected] {
+  cursor: move !important;
+}
+
+[data-knight-flow-placeholder-for] {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+[data-knight-editing-text="true"] {
+  cursor: text !important;
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent, #3b6cff) 72%, transparent);
+}
+
+.knight-editor-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 10002;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent, #3b6cff) 28%, var(--border, rgba(0,0,0,.12)));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface, #fff) 94%, transparent);
+  color: var(--text-1, #111216);
+  box-shadow: 0 16px 44px rgba(15, 23, 42, .18);
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
+  pointer-events: none;
+  font: 650 13px/1.35 var(--font-sans, system-ui, sans-serif);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.knight-editor-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.knight-editor-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, .46);
+  backdrop-filter: blur(10px);
+}
+
+.knight-editor-modal-backdrop.is-open {
+  display: flex;
+}
+
+.knight-editor-modal {
+  width: min(420px, 100%);
+  border: 1px solid color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 70%, var(--accent, #3b6cff) 30%);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  color: var(--text-1, #111216);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, .26);
+  padding: 22px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.knight-editor-modal h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.knight-editor-modal p {
+  margin: 0;
+  color: var(--text-2, #55596a);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.knight-editor-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.knight-editor-modal-actions .knight-editor-button {
+  min-width: max-content;
+}
+
+@media (max-width: 900px) {
+  .knight-editor-toolbar {
+    top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .knight-editor-status {
+    order: 10;
+    width: 100%;
+    max-width: none;
+    text-align: center;
+  }
+}

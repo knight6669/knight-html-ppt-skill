@@ -24,7 +24,8 @@ One command, no build. Pure static HTML/CSS/JS with only CDN webfonts.
 - **31 layouts** (`templates/single-page/*.html`) with realistic demo data
 - **27 CSS animations** (`assets/animations/animations.css`) via `data-anim`
 - **20 canvas FX animations** (`assets/animations/fx/*.js`) via `data-fx` — particle-burst, confetti-cannon, firework, starfield, matrix-rain, knowledge-graph (force-directed), neural-net (pulses), constellation, orbit-ring, galaxy-swirl, word-cascade, letter-explode, chain-react, magnetic-field, data-stream, gradient-blob, sparkle-trail, shockwave, typewriter-multi, counter-explosion
-- **Keyboard + wheel runtime** (`assets/runtime.js`) — arrows, mouse wheel, T (theme), A (anim), F/O/E, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, N (notes drawer), R (reset timer in presenter). The E-key page navigator is compact, token-based, and theme-aware.
+- **Keyboard + wheel runtime** (`assets/runtime.js`) — arrows, mouse wheel, T (theme), A (anim), F/O/E, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, **V (interactive edit mode)**, N (notes drawer), R (reset timer in presenter). The E-key page navigator is compact, token-based, and theme-aware.
+- **Interactive editor** (`assets/editor.js`, `assets/editor.css`) — auto-loaded by runtime in normal audience view. Press V to select, drag, resize, edit text, style text, undo/redo, and save edited HTML through the browser File System Access flow, with download fallback.
 - **FX runtime** (`assets/animations/fx-runtime.js`) — auto-inits `[data-fx]` on slide enter, cleans up on leave
 - **Showcase decks** for themes / layouts / animations / full-decks gallery
 - **Headless Chrome render script** for PNG export
@@ -184,7 +185,17 @@ Only after those are clear, scaffold the deck and start writing.
   business topic, or takeaway, not the authoring process.
 - **Keyboard-first.** Always include `<script src="../assets/runtime.js"></script>`
   so the deck supports ← →, mouse-wheel navigation, T / A / F / S / O / E, and hash
-  deep-links.
+  deep-links. The runtime also auto-loads `editor.js` / `editor.css` for V-key
+  interactive editing in normal audience view; preview and presenter windows do
+  not load the editor.
+- **Interactive editing support.** Normal generated decks should allow V to enter
+  edit mode. The editor supports selecting common text/cards/images, dragging,
+  resizing, text editing, font size, color, bold, alignment, undo/redo, local
+  draft restore, and saving HTML. Save button and Ctrl+S reuse the remembered
+  file handle to overwrite after browser permission is granted; if no handle is
+  available, the browser asks for a file or downloads a copy.
+  Use `data-edit-lock="true"` on decorative or runtime-owned elements that must
+  not be selected.
 - **Use O as a full-screen thumbnail wall.** `O` should open a whole-page
   overview made from real slide thumbnails, automatically fitting rows/columns
   to the slide count so thumbnails fill the viewport. Avoid placeholder title
@@ -362,6 +373,10 @@ Before handing off a finished HTML deck:
   mode work. Also verify mouse-wheel navigation: wheel down advances one slide,
   wheel up goes back one slide, and repeated wheel events do not skip multiple
   slides while keeping the cooldown short enough to feel responsive.
+- Verify V-key edit mode: toolbar appears, click selects a common element,
+  drag/resize work, double-click edits text, Ctrl+Z/Ctrl+Y undo/redo, Esc prompts
+  to save dirty changes, Ctrl+S uses browser save/另存为 or download fallback,
+  and saved HTML does not contain editor UI or transient selection attributes.
 - Verify main heading fit in a real browser at the target deck viewport,
   typically `1600x1000`. For each `.h2` / main title, check for accidental
   wrapping and horizontal overflow. Medium-length headings should not wrap just
@@ -410,6 +425,8 @@ html-ppt/
 │   ├── base.css             (tokens + primitives — do not edit per deck)
 │   ├── fonts.css            (webfont imports)
 │   ├── runtime.js           (keyboard + presenter + overview + theme cycle)
+│   ├── editor.js            (V-key interactive editor)
+│   ├── editor.css           (editor toolbar/selection UI)
 │   ├── themes/*.css         (36 token overrides, one per theme)
 │   └── animations/
 │       ├── animations.css   (27 named CSS entry animations)
@@ -463,6 +480,10 @@ O                                       full-screen thumbnail wall overview
 E                                       left-side thumbnail page navigator
 T                                       cycle themes (reads data-themes attr)
 A                                       cycle demo animation on current slide
+V                                       interactive edit mode
+Ctrl+Z / Ctrl+Y                         undo / redo in edit mode
+Ctrl+S                                  save / save as HTML in edit mode
+Esc in edit mode                        prompt to save, discard, or continue editing
 #/N in URL                              deep-link to slide N
 Esc                                     close all overlays
 ```
