@@ -50,6 +50,7 @@ async function main() {
   <section class="slide" data-title="测试页">
     <h1 class="h1" id="title">原始标题</h1>
     <p class="lede" id="lede">原始说明文本</p>
+    <p class="lede" id="partial-text">局部加粗能力测试</p>
     <div class="nested-wrap" id="nested-wrap"><p class="lede" id="nested-text">嵌套文本</p></div>
     <div class="card" id="card"><strong>42</strong><span>指标卡</span></div>
     <div class="slide-fx" data-edit-lock="true"></div>
@@ -126,6 +127,94 @@ async function main() {
 
   await page.click('#lede');
   assert(await page.evaluate(() => document.querySelector('#lede').hasAttribute('data-knight-edit-selected')), 'click should select lede text');
+
+  await page.dblclick('#partial-text');
+  await page.evaluate(() => {
+    const el = document.querySelector('#partial-text');
+    el.focus();
+    const text = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode();
+    const range = document.createRange();
+    range.setStart(text, 2);
+    range.setEnd(text, 6);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.click('[data-editor-command="bold"]');
+  const partialBoldByButton = await page.evaluate(() => {
+    const el = document.querySelector('#partial-text');
+    return {
+      html: el.innerHTML,
+      fontWeight: el.style.fontWeight,
+      contenteditable: el.getAttribute('contenteditable'),
+      activeId: document.activeElement && document.activeElement.id
+    };
+  });
+  assert(partialBoldByButton.html === '局部<strong>加粗能力</strong>测试', 'bold button should apply to the selected text only');
+  assert(!partialBoldByButton.fontWeight, 'partial bold should not set font-weight on the whole text block');
+  assert(partialBoldByButton.contenteditable === 'true', `text edit should remain active after toolbar bold, got active=${partialBoldByButton.activeId} contenteditable=${partialBoldByButton.contenteditable}`);
+
+  await page.evaluate(() => {
+    const el = document.querySelector('#partial-text');
+    el.focus();
+    const text = el.querySelector('strong').firstChild;
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  const beforeButtonUnbold = await page.evaluate(() => {
+    const selection = window.getSelection();
+    return {
+      text: selection.toString(),
+      anchorParent: selection.anchorNode && selection.anchorNode.parentElement && selection.anchorNode.parentElement.tagName,
+      focusParent: selection.focusNode && selection.focusNode.parentElement && selection.focusNode.parentElement.tagName,
+      contenteditable: document.querySelector('#partial-text').getAttribute('contenteditable')
+    };
+  });
+  assert(beforeButtonUnbold.text === '加粗能力', `test should select bold text before toggling off, got ${JSON.stringify(beforeButtonUnbold)}`);
+  await page.click('[data-editor-command="bold"]');
+  const partialUnboldByButton = await page.evaluate(() => document.querySelector('#partial-text').innerHTML);
+  assert(partialUnboldByButton === '局部加粗能力测试', `bold button should remove bold from an already-bold text selection, got ${partialUnboldByButton}`);
+
+  await page.evaluate(() => {
+    const el = document.querySelector('#partial-text');
+    el.focus();
+    const text = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode();
+    const range = document.createRange();
+    range.setStart(text, 6);
+    range.setEnd(text, 8);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+B' : 'Control+B');
+  const partialBoldByShortcut = await page.evaluate(() => document.querySelector('#partial-text').innerHTML);
+  assert(partialBoldByShortcut.includes('<strong>测试</strong>'), 'Ctrl+B should apply bold to the selected text only');
+
+  await page.evaluate(() => {
+    const el = document.querySelector('#partial-text');
+    el.focus();
+    const text = el.querySelector('strong').firstChild;
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+B' : 'Control+B');
+  const partialUnboldByShortcut = await page.evaluate(() => document.querySelector('#partial-text').innerHTML);
+  assert(partialUnboldByShortcut === '局部加粗能力测试', 'Ctrl+B should remove bold from an already-bold text selection');
+
+  await page.keyboard.press('Escape');
+  await page.click('#lede');
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+B' : 'Control+B');
+  const blockBoldByShortcut = await page.evaluate(() => document.querySelector('#lede').style.fontWeight);
+  assert(blockBoldByShortcut === '800' || blockBoldByShortcut === 'bold' || Number(blockBoldByShortcut) >= 700, 'Ctrl+B should bold the selected whole element when not editing text');
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+B' : 'Control+B');
+  const blockUnboldByShortcut = await page.evaluate(() => document.querySelector('#lede').style.fontWeight);
+  assert(blockUnboldByShortcut === '400' || blockUnboldByShortcut === 'normal' || Number(blockUnboldByShortcut) < 700, 'Ctrl+B should remove whole-element bold when pressed again');
 
   await page.fill('.knight-editor-font-size', '44');
   await page.dispatchEvent('.knight-editor-font-size', 'change');

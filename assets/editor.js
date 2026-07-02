@@ -19,6 +19,7 @@
     drag: null,
     fileHandle: null,
     fileHandleReady: null,
+    savedTextRange: null,
     toastTimer: 0
   };
 
@@ -197,6 +198,7 @@
     ].join('');
 
     toolbar.addEventListener('pointerdown', stopUIEvent);
+    toolbar.addEventListener('mousedown', stopUIEvent);
     toolbar.addEventListener('click', onToolbarClick);
     toolbar.querySelector('.knight-editor-font-size').addEventListener('change', onFontSizeChange);
     toolbar.querySelector('.knight-editor-font-size').addEventListener('keydown', event => {
@@ -226,6 +228,14 @@
   }
 
   function stopUIEvent(event) {
+    if (event.type === 'pointerdown' && event.target.closest && event.target.closest('button')) {
+      saveCurrentTextRange();
+      event.preventDefault();
+    }
+    if (event.type === 'mousedown' && event.target.closest && event.target.closest('button')) {
+      saveCurrentTextRange();
+      event.preventDefault();
+    }
     event.stopPropagation();
   }
 
@@ -252,6 +262,13 @@
 
     if (mod && key.toLowerCase() === 's') {
       save();
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (mod && key.toLowerCase() === 'b' && (!typingTarget || event.target.closest('[contenteditable="true"]'))) {
+      toggleBold();
       event.preventDefault();
       event.stopPropagation();
       return;
@@ -725,6 +742,7 @@
     el.setAttribute('contenteditable', 'true');
     el.setAttribute('spellcheck', 'false');
     el.setAttribute('data-knight-editing-text', 'true');
+    state.savedTextRange = null;
     el.addEventListener('paste', onPlainTextPaste);
     el.addEventListener('input', onTextInput);
     el.addEventListener('blur', finishTextEdit, { once: true });
@@ -741,6 +759,7 @@
     el.removeAttribute('spellcheck');
     el.removeAttribute('data-knight-editing-text');
     state.editingText = null;
+    state.savedTextRange = null;
     recordState();
     syncSelectionBox();
     setStatus(state.dirty ? '已修改，记得保存' : '点击选择 · 拖动移动 · 双击改字', state.dirty ? 'dirty' : '');
@@ -834,10 +853,156 @@
   }
 
   function toggleBold() {
+    if (state.editingText) {
+      if (toggleInlineBoldSelection()) return;
+      showToast('先选中要加粗的文字');
+      return;
+    }
     const el = state.selected;
     if (!el) return;
     const weight = parseInt(getComputedStyle(el).fontWeight, 10) || 400;
     applyStyle('fontWeight', weight >= 700 ? '400' : '800');
+  }
+
+  function toggleInlineBoldSelection() {
+    const context = getTextSelectionContext();
+    if (!context) return false;
+    if (unwrapInlineBoldSelection(context)) {
+      commitInlineFormat(context.root, '已取消选中文字加粗');
+      return true;
+    }
+    const { root } = context;
+    try { document.execCommand('styleWithCSS', false, false); } catch (err) {}
+    const applied = document.execCommand('bold', false, null);
+    if (!applied) return false;
+    commitInlineFormat(root, '已加粗选中文字');
+    return true;
+  }
+
+  function commitInlineFormat(root, message) {
+    normalizeBoldMarkup(root);
+    saveCurrentTextRange();
+    recordState();
+    syncToolbarFromSelection();
+    syncSelectionBox();
+    setStatus(message, 'dirty');
+  }
+
+  function normalizeBoldMarkup(root) {
+    root.querySelectorAll('b').forEach(node => {
+      const strong = document.createElement('strong');
+      while (node.firstChild) strong.appendChild(node.firstChild);
+      node.replaceWith(strong);
+    });
+    root.querySelectorAll('strong').forEach(node => {
+      if (!(node.textContent || '').length) node.remove();
+    });
+    root.normalize();
+  }
+
+  function unwrapInlineBoldSelection(context) {
+    const { root, range } = context;
+    const bold = commonBoldAncestor(root, range);
+    if (!bold || bold === root) return false;
+
+    const beforeRange = document.createRange();
+    beforeRange.selectNodeContents(bold);
+    beforeRange.setEnd(range.startContainer, range.startOffset);
+
+    const afterRange = document.createRange();
+    afterRange.selectNodeContents(bold);
+    afterRange.setStart(range.endContainer, range.endOffset);
+
+    const before = beforeRange.cloneContents();
+    const selected = range.cloneContents();
+    const after = afterRange.cloneContents();
+    const startMarker = document.createTextNode('');
+    const endMarker = document.createTextNode('');
+    const replacement = [];
+
+    if (hasFragmentContent(before)) {
+      const beforeBold = bold.cloneNode(false);
+      beforeBold.appendChild(before);
+      replacement.push(beforeBold);
+    }
+    replacement.push(startMarker);
+    while (selected.firstChild) {
+      const child = selected.firstChild;
+      selected.removeChild(child);
+      replacement.push(child);
+    }
+    replacement.push(endMarker);
+    if (hasFragmentContent(after)) {
+      const afterBold = bold.cloneNode(false);
+      afterBold.appendChild(after);
+      replacement.push(afterBold);
+    }
+
+    bold.replaceWith(...replacement);
+    const nextRange = document.createRange();
+    nextRange.setStartAfter(startMarker);
+    nextRange.setEndBefore(endMarker);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+    startMarker.remove();
+    endMarker.remove();
+    return true;
+  }
+
+  function commonBoldAncestor(root, range) {
+    const startBold = closestBold(range.startContainer, root);
+    const endBold = closestBold(range.endContainer, root);
+    return startBold && startBold === endBold ? startBold : null;
+  }
+
+  function closestBold(node, root) {
+    let el = node && node.nodeType === 1 ? node : node && node.parentElement;
+    while (el && el !== root.parentElement) {
+      if (el.matches && el.matches('strong,b')) return el;
+      if (el === root) break;
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  function hasFragmentContent(fragment) {
+    return !!(fragment && fragment.childNodes.length && (fragment.textContent || '').length);
+  }
+
+  function getTextSelectionContext() {
+    return getLiveTextSelectionContext() || getSavedTextSelectionContext();
+  }
+
+  function getLiveTextSelectionContext() {
+    const root = state.editingText || (isTextEditable(state.selected) ? state.selected : null);
+    if (!root) return null;
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return null;
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) return null;
+    if (!nodeIsInside(root, range.startContainer) || !nodeIsInside(root, range.endContainer)) return null;
+    return { root, range };
+  }
+
+  function getSavedTextSelectionContext() {
+    const root = state.editingText || (isTextEditable(state.selected) ? state.selected : null);
+    const range = state.savedTextRange;
+    if (!root || !range || range.collapsed) return null;
+    if (!nodeIsInside(root, range.startContainer) || !nodeIsInside(root, range.endContainer)) return null;
+    return { root, range };
+  }
+
+  function saveCurrentTextRange() {
+    const context = getLiveTextSelectionContext();
+    if (context) state.savedTextRange = context.range.cloneRange();
+  }
+
+  function nodeIsInside(root, node) {
+    if (!root || !node) return false;
+    if (node === root) return true;
+    const element = node.nodeType === 1 ? node : node.parentElement;
+    return !!(element && (element === root || root.contains(element)));
   }
 
   function applyStyle(property, value) {

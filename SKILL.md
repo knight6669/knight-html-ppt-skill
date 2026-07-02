@@ -17,10 +17,12 @@ New decks should ship with interactive editing enabled by default:
   `assets/editor.css` in the normal audience view.
 - Press `V` to enter or exit edit mode. Click common slide elements to select
   them, drag to move, drag handles to resize, and double-click text to edit.
-- The toolbar supports save, undo, redo, bold, font size, common color swatches,
-  custom color, and left/center/right alignment.
-- Keyboard support: `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z` redo, `Ctrl+S`
-  save, and `Esc` prompts to save, discard, or continue editing when dirty.
+- The toolbar supports save, undo, redo, bold/unbold, font size, common color
+  swatches, custom color, and left/center/right alignment.
+- Keyboard support: `Ctrl+B` toggles bold for the selected element, or only the
+  selected text while text editing; `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z`
+  redo, `Ctrl+S` save, and `Esc` prompts to save, discard, or continue editing
+  when dirty.
 - Save uses the browser File System Access / save-as flow when available and
   falls back to downloading the modified HTML. It must not depend on a local
   save server.
@@ -209,10 +211,13 @@ Only after those are clear, scaffold the deck and start writing.
   not load the editor.
 - **Interactive editing support.** Normal generated decks should allow V to enter
   edit mode. The editor supports selecting common text/cards/images, dragging,
-  resizing, text editing, font size, color, bold, alignment, undo/redo, local
+  resizing, text editing, font size, color, bold/unbold, alignment, undo/redo, local
   draft restore, and saving HTML. Save button and Ctrl+S use the browser save-as
   / File System Access flow when available; if permission is unavailable, the
   browser asks for a file or downloads a copy.
+  When editing text, a selected text range plus toolbar B or Ctrl+B should toggle
+  inline `<strong>` only for that range; outside text editing, Ctrl+B toggles
+  bold for the whole selected element.
   Use `data-edit-lock="true"` on decorative or runtime-owned elements that must
   not be selected.
 - **Use O as a full-screen thumbnail wall.** `O` should open a whole-page
@@ -500,6 +505,7 @@ E                                       left-side thumbnail page navigator
 T                                       cycle themes (reads data-themes attr)
 A                                       cycle demo animation on current slide
 V                                       interactive edit mode
+Ctrl+B                                  toggle bold; in text editing, only affects selected text
 Ctrl+Z / Ctrl+Y                         undo / redo in edit mode
 Ctrl+S                                  save / save as HTML in edit mode
 Esc in edit mode                        prompt to save, discard, or continue editing
